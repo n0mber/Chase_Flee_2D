@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Chase
   - Flee
+  - StartPointEnemy
   layers:
   - Default
   - TransparentFX

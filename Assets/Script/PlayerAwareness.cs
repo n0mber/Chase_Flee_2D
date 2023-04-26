@@ -6,36 +6,61 @@ public class PlayerAwareness : MonoBehaviour
 {
     public bool TargetSpotted { get; private set; }
 
+    public bool ScaryTargetSpotted { get; private set; }
+
     public Vector2 DirectionToTarget { get; private set; }
+    public Vector2 DirectionToScaryTarget { get; private set; }
 
     [SerializeField]
     private float _targetSpottedDistance;
 
     private Transform _target;
 
+    private Transform _chaser;
+    private Transform _fleer;
+
     private void Awake()
     {
         _target = GameObject.FindWithTag("Player").transform;
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
-
+        _chaser = GameObject.FindWithTag("Chase").transform;
+        _fleer = GameObject.FindWithTag("Flee").transform;
     }
 
     // Update is called once per frame
     void Update()
     {
-        Vector2 chaserToTargetVector = _target.position - transform.position;
-        DirectionToTarget = chaserToTargetVector.normalized;
 
-        if (chaserToTargetVector.magnitude <= _targetSpottedDistance)
+        if (_chaser)
         {
-            TargetSpotted = true;
+            Vector2 chaserToTargetVector = _target.position - _chaser.position;
+            
+            DirectionToTarget = chaserToTargetVector.normalized;
+
+            if (chaserToTargetVector.magnitude <= _targetSpottedDistance)
+            {
+                TargetSpotted = true;
+            }
+            else
+            {
+                TargetSpotted = false;
+            }
         }
-        else
+        if(_fleer)
         {
-            TargetSpotted = false;
+            Vector2 chaserToTargetVector = _fleer.position - _target.position;
+
+            DirectionToScaryTarget = chaserToTargetVector.normalized;
+
+            if (chaserToTargetVector.magnitude <= _targetSpottedDistance)
+            {
+                ScaryTargetSpotted = true;
+            }
+            else
+            {
+                ScaryTargetSpotted = false;
+            }
+
         }
+        
     }
 }

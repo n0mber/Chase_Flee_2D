@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class ChaseMovement : MonoBehaviour
@@ -13,25 +14,61 @@ public class ChaseMovement : MonoBehaviour
     private Rigidbody2D _rb;
     private PlayerAwareness _playerAwareness;
     private Vector2 _targetDirection;
-    private Vector2 _startPosition;
+    private Vector2 _startDirection;
+    private Vector3 _startPosition;
+    private bool _delay = true;
 
-    // Start is called before the first frame update
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
         _playerAwareness = GetComponent<PlayerAwareness>();
+        _startPosition = transform.position;
+
     }
 
-    void Update()
+    private void Update()
     {
         transform.position = new Vector3(Mathf.Clamp(transform.position.x, -9.25f, 9.23f), Mathf.Clamp(transform.position.y, -4.45f, 4.5f), transform.position.z);
     }
-    // Update is called once per frame
+
     private void FixedUpdate()
     {
-        UpdateTargetDirection();
+        if (!_playerAwareness.TargetSpotted && transform.position != _startPosition)
+        {
+            if(_delay)
+            {
+                _rb.velocity = Vector2.zero;
+                _targetDirection = Vector3.zero;
+                float _delayTime = 1.0f;
+                DoDelayAction(_delayTime);
+            }
+            else
+            {
+                ReturnToStart();
+            }
+        }
+        else
+        {
+            _delay = true;
+            UpdateTargetDirection();
+        }
         RotateTowardsTarget();
         SetVelocity();
+
+        if(_targetDirection == _startDirection.normalized && _startPosition != transform.position && !_delay)
+        {
+            _rb.MovePosition(_startDirection);
+        }
+    }
+
+    private void ReturnToStart()
+    {
+        if (!_playerAwareness.TargetSpotted && transform.position != _startPosition)
+        {
+            float step = _speed * Time.deltaTime;
+            _startDirection = Vector2.MoveTowards(transform.position, _startPosition, step);
+            _targetDirection = _startDirection.normalized;
+        }
     }
 
     private void UpdateTargetDirection()
@@ -70,5 +107,19 @@ public class ChaseMovement : MonoBehaviour
         {
             _rb.velocity = transform.up * _speed;
         }
+    }
+
+    void DoDelayAction(float delayTime)
+    {
+        StartCoroutine(DelayReturn(delayTime));
+    }
+    IEnumerator DelayReturn(float delayTime)
+    {
+        Debug.Log("Started Coroutine at timestamp : " + Time.time);
+
+        yield return new WaitForSeconds(delayTime);
+
+        Debug.Log("Ended Coroutine at timestamp : " + Time.time);
+        _delay = false;
     }
 }
