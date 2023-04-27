@@ -16,18 +16,20 @@ public class FleeMovement : MonoBehaviour
     private Vector2 _startDirection;
     private Vector3 _startPosition;
     private bool _delay = true;
+    private CircleCollider2D _circleCollider;
 
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
         _playerAwareness = GetComponent<PlayerAwareness>();
         _startPosition = transform.position;
+        _circleCollider = GetComponent<CircleCollider2D>();
 
     }
 
     private void Update()
     {
-        transform.position = new Vector3(Mathf.Clamp(transform.position.x, -9.25f, 9.23f), Mathf.Clamp(transform.position.y, -4.45f, 4.5f), transform.position.z);
+        transform.position = new Vector3(Mathf.Clamp(transform.position.x, -9.25f, 9.23f), Mathf.Clamp(transform.position.y, -4.45f, 4.5f), transform.position.z);       
     }
 
     private void FixedUpdate()
@@ -62,7 +64,7 @@ public class FleeMovement : MonoBehaviour
 
     private void ReturnToStart()
     {
-        if (!_playerAwareness.TargetSpotted && transform.position != _startPosition)
+        if (!_playerAwareness.ScaryTargetSpotted && transform.position != _startPosition)
         {
             float step = _speed * Time.deltaTime;
             _startDirection = Vector2.MoveTowards(transform.position, _startPosition, step);
@@ -72,7 +74,7 @@ public class FleeMovement : MonoBehaviour
 
     private void UpdateTargetDirection()
     {
-        if (_playerAwareness.TargetSpotted)
+        if (_playerAwareness.ScaryTargetSpotted)
         {
             _targetDirection = _playerAwareness.DirectionToScaryTarget;
         }
@@ -89,8 +91,8 @@ public class FleeMovement : MonoBehaviour
             return;
         }
 
-        Quaternion targetRotation = Quaternion.LookRotation(transform.forward, _targetDirection);
-        Quaternion rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, _rotationSpeeD * Time.deltaTime);
+        Quaternion awayRotation = Quaternion.LookRotation(-transform.position, _targetDirection);
+        Quaternion rotation = Quaternion.Slerp(transform.rotation, awayRotation, _rotationSpeeD * Time.deltaTime);
 
         _rb.SetRotation(rotation);
 

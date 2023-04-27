@@ -32,7 +32,7 @@ public class PlayerAwareness : MonoBehaviour
 
         if (_chaser)
         {
-            Vector2 chaserToTargetVector = _target.position - _chaser.position;
+            Vector2 chaserToTargetVector = _target.position - transform.position;
             
             DirectionToTarget = chaserToTargetVector.normalized;
 
@@ -47,7 +47,7 @@ public class PlayerAwareness : MonoBehaviour
         }
         if(_fleer)
         {
-            Vector2 chaserToTargetVector = _fleer.position - _target.position;
+            Vector2 chaserToTargetVector = transform.position - _target.position;
 
             DirectionToScaryTarget = chaserToTargetVector.normalized;
 
